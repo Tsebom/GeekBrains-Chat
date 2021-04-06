@@ -102,7 +102,8 @@ public class ClientHandler {
         for (ClientHandler c :
                 server.clients) {
             if (c.nickname.equals(nickname)) {
-                c.sendMsg(this.nickname+ " : " + msg);
+                c.sendMsg(this.nickname + " : " + msg);
+                sendMsg(this.nickname + " : " + msg);
             }
         }
     }
