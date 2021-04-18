@@ -3,6 +3,10 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -15,13 +19,18 @@ public class Server {
     private List<ClientHandler> clients;//list authorization
     private AuthService authService;
 
+    private static Connection connection;
+    private static Statement statement;
+
     public Server() {
         clients = new CopyOnWriteArrayList<>();
         authService = new SimpleAuthService();
-        
+
         try {
             server = new ServerSocket(PORT);
             System.out.println("Server has started");
+            connectDataBase();
+            System.out.println("Server has connected to RegBase");
 
             while (true) {
                 socket = server.accept();
@@ -30,13 +39,56 @@ public class Server {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        finally {
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
             try {
+                disconnectDataBase();
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * Set connect to RegBase
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
+    private static void connectDataBase() throws ClassNotFoundException, SQLException {
+        Class.forName("org.sqlite.JDBC");
+        connection = DriverManager.getConnection("jdbc:sqlite:RegBase.db");
+        statement = connection.createStatement();
+    }
+
+    /**
+     * Close connect to RegBase
+     */
+    private static void disconnectDataBase(){
+        try {
+            statement.close();
+            connection.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    /**
+     * Send broadcast message with list of available users
+     */
+    private void broadCastClientList() {
+        StringBuilder stringBuilder = new StringBuilder("/clientlist");
+        for (ClientHandler c : clients) {
+            stringBuilder.append(" ").append(c.getNickname());
+        }
+
+        String msg = stringBuilder.toString();
+
+        for (ClientHandler c : clients) {
+            c.sendMsg(msg);
         }
     }
 
@@ -107,19 +159,4 @@ public class Server {
     }
 
 
-    /**
-     * Send broadcast message with list of available users
-     */
-    private void broadCastClientList() {
-        StringBuilder stringBuilder = new StringBuilder("/clientlist");
-        for (ClientHandler c : clients) {
-            stringBuilder.append(" ").append(c.getNickname());
-        }
-
-        String msg = stringBuilder.toString();
-
-        for (ClientHandler c : clients) {
-            c.sendMsg(msg);
-        }
-    }
 }
