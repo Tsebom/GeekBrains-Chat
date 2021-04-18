@@ -67,11 +67,13 @@ public class ClientHandler {
                         //registration
                         if (msg.startsWith("/reg")) {
                             String[] token = msg.split("\\s+", 4);
+
                             //check for empty field
                             if (token.length < 4) {
                                 continue;
                             }
                             boolean checkReg = server.getAuthService().registration(token[1], token[2], token[3]);
+
                             if (checkReg) {
                                 sendMsg("/reg_ok");
                             } else {

@@ -3,10 +3,7 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -22,15 +19,19 @@ public class Server {
     private static Connection connection;
     private static Statement statement;
 
+    private static PreparedStatement addUser;//prepare statement for add new user to RegBase
+
     public Server() {
         clients = new CopyOnWriteArrayList<>();
-        authService = new SimpleAuthService();
+        //authService = new SimpleAuthService();
+        authService = new DataAuthService(this);
 
         try {
             server = new ServerSocket(PORT);
             System.out.println("Server has started");
             connectDataBase();
             System.out.println("Server has connected to RegBase");
+            setAllPrepareStatement();
 
             while (true) {
                 socket = server.accept();
@@ -74,6 +75,15 @@ public class Server {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    /**
+     * Set prepare statement for update RegBase
+     * @throws SQLException
+     */
+    private void setAllPrepareStatement() throws SQLException {
+        addUser = connection.prepareStatement("INSERT INTO UsersOFAuthorization (login, password, nickname)" +
+                " VALUES ( ? , ? , ? )");
     }
 
     /**
@@ -158,5 +168,11 @@ public class Server {
         sender.sendMsg(nickname + " is not found.");
     }
 
+    public static Statement getStatement() {
+        return statement;
+    }
 
+    public static PreparedStatement getAddUser() {
+        return addUser;
+    }
 }
