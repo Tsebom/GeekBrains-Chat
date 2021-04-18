@@ -3,6 +3,9 @@ package server;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Realization of interface AuthService for DataBase SQLite
+ */
 public class DataAuthService implements AuthService{
     private Server server;
 
