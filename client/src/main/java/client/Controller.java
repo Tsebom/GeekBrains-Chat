@@ -153,6 +153,15 @@ public class Controller implements Initializable {
                                     }
                                 });
                             }
+                            //change nickname
+                            if (msg.startsWith("/change_nickname ")) {
+                                String[] token = msg.split("\\s+", 2);
+                                if (token.length < 2) {
+                                    continue;
+                                }
+                                nickname = token[1].trim();
+                                setTitle(nickname);
+                            }
                         } else {
                             conversation.appendText(msg + "\n");
                         }

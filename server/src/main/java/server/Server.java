@@ -89,7 +89,7 @@ public class Server {
     /**
      * Send broadcast message with list of available users
      */
-    private void broadCastClientList() {
+    protected void broadCastClientList() {
         StringBuilder stringBuilder = new StringBuilder("/clientlist");
         for (ClientHandler c : clients) {
             stringBuilder.append(" ").append(c.getNickname());
@@ -100,6 +100,18 @@ public class Server {
         for (ClientHandler c : clients) {
             c.sendMsg(msg);
         }
+    }
+
+    public AuthService getAuthService() {
+        return authService;
+    }
+
+    public static Statement getStatement() {
+        return statement;
+    }
+
+    public static PreparedStatement getAddUser() {
+        return addUser;
     }
 
     /**
@@ -130,10 +142,6 @@ public class Server {
     public void removeClient(ClientHandler clientHandler) {
         clients.remove(clientHandler);
         broadCastClientList();
-    }
-
-    public AuthService getAuthService() {
-        return authService;
     }
 
     /**
@@ -168,11 +176,27 @@ public class Server {
         sender.sendMsg(nickname + " is not found.");
     }
 
-    public static Statement getStatement() {
-        return statement;
-    }
+    public boolean isChangeNickname(ClientHandler clientHandler, String nickname) {
+        try {
+            ResultSet result = statement.executeQuery("SELECT id,nickname FROM UsersOFAuthorization");
+            Integer id = null;
 
-    public static PreparedStatement getAddUser() {
-        return addUser;
+            while (result.next()) {
+                if (result.getString(2).equals(nickname)) {
+                    return false;
+                }
+                if (result.getString(2).equals(clientHandler.getNickname())) {
+                    id = result.getInt(1);
+                }
+            }
+            if (id != null) {
+                statement.executeUpdate("UPDATE UsersOFAuthorization SET nickname = '" + nickname +
+                        "' WHERE id = " + id);
+                return true;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return false;
     }
 }

@@ -97,6 +97,20 @@ public class ClientHandler {
                                 String[] token = msg.split("\\s+", 3);
                                 server.personalMsg(this, token[1].trim(), token[2].trim());
                             }
+                            //change nickname
+                            if (msg.startsWith("/change_nickname ")) {
+                                String[] token = msg.split("\\s+", 2);
+                                if (token.length < 2) {
+                                    continue;
+                                }
+                                if (server.isChangeNickname(this, token[1].trim())){
+                                    nickname = token[1].trim();
+                                    out.writeUTF("/change_nickname " + nickname);
+                                    server.broadCastClientList();
+                                }else {
+                                    out.writeUTF("Change nickname is failed");
+                                }
+                            }
                         } else {
                             //send message for all users
                             server.broadcastMsg(this, msg);
