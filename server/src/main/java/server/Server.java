@@ -176,22 +176,24 @@ public class Server {
         sender.sendMsg(nickname + " is not found.");
     }
 
+    /**
+     * Change nickname in DataBase SQLite
+     * @param clientHandler - user who make request for change nickname
+     * @param nickname - new nickname
+     * @return - true if nickname changed or false if not
+     */
     public boolean isChangeNickname(ClientHandler clientHandler, String nickname) {
+        ResultSet result;
         try {
-            ResultSet result = statement.executeQuery("SELECT id,nickname FROM UsersOFAuthorization");
-            Integer id = null;
+            result = statement.executeQuery("SELECT * FROM UsersOFAuthorization " +
+                    "WHERE nickname = '" + nickname + "'");
 
-            while (result.next()) {
-                if (result.getString(2).equals(nickname)) {
-                    return false;
-                }
-                if (result.getString(2).equals(clientHandler.getNickname())) {
-                    id = result.getInt(1);
-                }
-            }
-            if (id != null) {
+            if (!result.next()) {
+                result = statement.executeQuery("SELECT id FROM UsersOFAuthorization " +
+                        "WHERE nickname = '" + clientHandler.getNickname() + "'");
+                result.next();
                 statement.executeUpdate("UPDATE UsersOFAuthorization SET nickname = '" + nickname +
-                        "' WHERE id = " + id);
+                        "' WHERE id = " + result.getInt(1));
                 return true;
             }
         } catch (SQLException throwables) {

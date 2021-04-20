@@ -1,5 +1,7 @@
 package server;
 
+import org.sqlite.SQLiteException;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -18,15 +20,12 @@ public class DataAuthService implements AuthService{
         ResultSet result;
 
         try {
-            result = server.getStatement().executeQuery("SELECT * FROM UsersOFAuthorization");
-
-            //checking there is the user with the login and the password
-            while (result.next()) {
-                if (result.getString(2).equals(login) && result.getString(3).equals(password)) {
-                    return result.getString(4);
-                }
+            result = server.getStatement().executeQuery("SELECT nickname FROM UsersOFAuthorization WHERE " +
+                    "login = '" + login + "' AND password = '" + password + "'");
+            if (result.next()) {
+                return result.getString(1);
             }
-        } catch (SQLException throwables) {
+        }catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         return null;
@@ -37,26 +36,23 @@ public class DataAuthService implements AuthService{
         ResultSet result;
 
         try {
-            result = server.getStatement().executeQuery("SELECT * FROM UsersOFAuthorization");
-
-            //checking there is the user with the login and the nickname
-            while (result.next()) {
-                if (result.getString(2).equals(login) || result.getString(4).equals(nickname)) {
-                    return false;
+            result = server.getStatement().executeQuery("SELECT * FROM UsersOFAuthorization WHERE " +
+                    "login = '" + login + "' AND nickname = '" + nickname + "'");
+            if (!result.next()) {
+                try {
+                    server.getAddUser().setString(1, login);
+                    server.getAddUser().setString(2, password);
+                    server.getAddUser().setString(3, nickname);
+                    server.getAddUser().executeUpdate();
+                    return true;
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+        }catch (SQLException throwables) {
 
-        try {
-            server.getAddUser().setString(1, login);
-            server.getAddUser().setString(2, password);
-            server.getAddUser().setString(3, nickname);
-            server.getAddUser().executeUpdate();
-        } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        return true;
+        return false;
     }
 }

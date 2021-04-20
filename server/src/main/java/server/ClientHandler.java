@@ -82,6 +82,7 @@ public class ClientHandler {
                         }
                     }
                     socket.setSoTimeout(0);// dropping time of waiting for passive user
+
                     //working loop
                     while (true) {
                         String msg = in.readUTF();
@@ -108,7 +109,7 @@ public class ClientHandler {
                                     out.writeUTF("/change_nickname " + nickname);
                                     server.broadCastClientList();
                                 }else {
-                                    out.writeUTF("Change nickname is failed");
+                                    out.writeUTF("This nickname is existed");
                                 }
                             }
                         } else {
