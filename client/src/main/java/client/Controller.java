@@ -19,6 +19,7 @@ import javafx.stage.StageStyle;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
@@ -105,6 +106,7 @@ public class Controller implements Initializable {
 
             //the thread for working with server
             new Thread(() -> {
+                FileWriter writeHistory = null;
                 try {
                     //authorization loop
                     while (true) {
@@ -138,6 +140,7 @@ public class Controller implements Initializable {
                     }
 
                     //working loop
+                    writeHistory = HistoryFile.writeHistory();
                     while (isConfirmAuth) {
                         String msg = in.readUTF();
                         if (msg.startsWith("/")) {
@@ -167,7 +170,7 @@ public class Controller implements Initializable {
                         } else {
                             conversation.appendText(msg + "\n");
                             //write history
-                            HistoryFile.writeHistory(msg + "\n");
+                            writeHistory.write(msg + "\n");
                         }
                     }
                 } catch (IOException e) {
@@ -175,6 +178,13 @@ public class Controller implements Initializable {
                 } finally {
                     System.out.println("Disconnected");
                     setConfirmAuth(false);
+                    if (writeHistory != null) {
+                        try {
+                            writeHistory.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     try {
                         socket.close();
                     } catch (IOException e) {

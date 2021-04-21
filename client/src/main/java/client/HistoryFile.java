@@ -37,12 +37,11 @@ public class HistoryFile {
 
     /**
      * Recording messages to history file
-     * @param msg - The recorded message
+     * @return - thread of write
      * @throws IOException
      */
-    public static void writeHistory(String msg) throws IOException {
+    public static FileWriter writeHistory() throws IOException {
         FileWriter writer = new FileWriter(file.getCanonicalFile(), true);
-        writer.write(msg);
-        writer.close();
+        return writer;
     }
 }
