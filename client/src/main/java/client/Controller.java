@@ -21,7 +21,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -121,6 +120,9 @@ public class Controller implements Initializable {
                             if (msg.startsWith("/auth_ok")) {
                                 nickname = msg.split("\\s+")[1];
                                 setConfirmAuth(true);
+                                //create or reade history file and output history
+                                HistoryFile.createHistoryFile(loginField.getText().trim());
+                                conversation.appendText(HistoryFile.readHistory());
                                 break;
                             }
                             //confirm registration
@@ -164,6 +166,8 @@ public class Controller implements Initializable {
                             }
                         } else {
                             conversation.appendText(msg + "\n");
+                            //write history
+                            HistoryFile.writeHistory(msg + "\n");
                         }
                     }
                 } catch (IOException e) {
