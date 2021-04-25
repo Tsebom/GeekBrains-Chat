@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.concurrent.ExecutorService;
 
 public class ClientHandler {
     private Server server;
@@ -24,7 +25,7 @@ public class ClientHandler {
             out=  new DataOutputStream(socket.getOutputStream());
 
             //the thread for interaction with a client
-            new Thread(() -> {
+            server.getService().execute(() -> {
                 try {
                     socket.setSoTimeout(120000);// set time of waiting for passive user
                     //authorization loop
@@ -136,7 +137,7 @@ public class ClientHandler {
                         e.printStackTrace();
                     }
                 }
-            }).start();
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }

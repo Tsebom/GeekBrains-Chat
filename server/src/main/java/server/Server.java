@@ -6,13 +6,19 @@ import java.net.Socket;
 import java.sql.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class Server {
     private static ServerSocket server;
     private static Socket socket;
 
+
     private static final int PORT = 8189;
+
+    private ExecutorService service;
+
     private List<ClientHandler> clients;//list authorization
     private AuthService authService;
 
@@ -22,6 +28,7 @@ public class Server {
     private static PreparedStatement addUser;//prepare statement for add new user to RegBase
 
     public Server() {
+        service = Executors.newCachedThreadPool();
         clients = new CopyOnWriteArrayList<>();
         //authService = new SimpleAuthService();
         authService = new DataAuthService(this);
@@ -52,6 +59,11 @@ public class Server {
                 e.printStackTrace();
             }
         }
+        service.shutdown();
+    }
+
+    public ExecutorService getService() {
+        return service;
     }
 
     /**
