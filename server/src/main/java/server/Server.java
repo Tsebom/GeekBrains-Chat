@@ -1,5 +1,6 @@
 package server;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -8,12 +9,16 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 
 public class Server {
+    private static final Logger logger = Logger.getLogger(Server.class.getName());
+    private static final LogManager manager = LogManager.getLogManager();
+
     private static ServerSocket server;
     private static Socket socket;
-
 
     private static final int PORT = 8189;
 
@@ -28,6 +33,12 @@ public class Server {
     private static PreparedStatement addUser;//prepare statement for add new user to RegBase
 
     public Server() {
+        try {
+            manager.readConfiguration(new FileInputStream("logging.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         service = Executors.newCachedThreadPool();
         clients = new CopyOnWriteArrayList<>();
         //authService = new SimpleAuthService();
@@ -35,21 +46,26 @@ public class Server {
 
         try {
             server = new ServerSocket(PORT);
-            System.out.println("Server has started");
+            logger.info("Server has started");
+//            System.out.println("Server has started");
             connectDataBase();
             System.out.println("Server has connected to RegBase");
             setAllPrepareStatement();
 
             while (true) {
                 socket = server.accept();
-                System.out.println("Client has connected: " + socket.getRemoteSocketAddress());
+                logger.info("Client has connected: " + socket.getRemoteSocketAddress());
+//                System.out.println("Client has connected: " + socket.getRemoteSocketAddress());
                 new ClientHandler(this, socket);
             }
         } catch (IOException e) {
+            logger.severe("happened error");
             e.printStackTrace();
         } catch (SQLException throwables) {
+            logger.severe("happened error");
             throwables.printStackTrace();
         } catch (ClassNotFoundException e) {
+            logger.severe("happened error");
             e.printStackTrace();
         } finally {
             try {

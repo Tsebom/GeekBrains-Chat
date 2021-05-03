@@ -26,7 +26,7 @@ public class HistoryFile {
      */
     public static String readHistory() throws IOException {
         StringBuffer stringBuffer = new StringBuffer();
-        List<String> list = Files.readAllLines(file.getAbsoluteFile().toPath());
+        List<String> list = Files.readAllLines(file.getCanonicalFile().toPath());
 
         for (int i = list.size() - 100; i < list.size(); i++) {
             stringBuffer.append(list.get(i) + "\n");

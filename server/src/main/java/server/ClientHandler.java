@@ -6,8 +6,11 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Logger;
 
 public class ClientHandler {
+    private static final Logger logger = Logger.getLogger(ClientHandler.class.getName());
+
     private Server server;
     private Socket socket;
     private DataInputStream in;
@@ -87,6 +90,7 @@ public class ClientHandler {
                     //working loop
                     while (true) {
                         String msg = in.readUTF();
+                        logger.info("client sent message: " + msg);
 
                         if (msg.startsWith("/")) {
                             //turn off a connection

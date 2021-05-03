@@ -1,0 +1,13 @@
+
+мая 03, 2021 10:00:12 PM server.Server <init>
+INFO: Server has started
+мая 03, 2021 10:00:49 PM server.Server <init>
+INFO: Client has connected: /127.0.0.1:51292
+мая 03, 2021 10:08:05 PM server.Server <init>
+INFO: Server has started
+мая 03, 2021 10:08:27 PM server.Server <init>
+INFO: Client has connected: /127.0.0.1:51508
+мая 03, 2021 10:08:33 PM server.ClientHandler lambda$new$0
+INFO: client sent message: dbhhdd
+мая 03, 2021 10:08:38 PM server.ClientHandler lambda$new$0
+INFO: client sent message: /end
